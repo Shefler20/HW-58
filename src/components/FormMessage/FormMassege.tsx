@@ -14,25 +14,29 @@ const FormMessage = () => {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        try {
-            const url = 'http://146.185.154.90:8000/messages';
-            const data = new URLSearchParams();
+        if (form.author.trim().length === 0 || form.message.trim().length === 0) {
+            toast.error("Please enter an author and message.");
+        }else {
+            try {
+                const url = 'http://146.185.154.90:8000/messages';
+                const data = new URLSearchParams();
 
-            data.set('author', form.author);
-            data.set('message', form.message);
+                data.set('author', form.author);
+                data.set('message', form.message);
 
-            const response = await fetch(url, {
-                method: 'POST',
-                body: data,
-            });
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: data,
+                });
 
-            if (!response.ok) throw new Error('Failed to send message');
+                if (!response.ok) throw new Error('Failed to send message');
 
-            setForm({ author: '', message: '' });
-            toast.success("Message sent!");
-        } catch (err) {
-            toast.error("Error sending message");
-            console.error(err);
+                setForm({ author: '', message: '' });
+                toast.success("Message sent!");
+            } catch (err) {
+                toast.error("Error sending message");
+                console.error(err);
+            }
         }
     };
 
