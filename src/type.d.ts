@@ -1,5 +1,4 @@
 interface MessageMutation {
-    datetime: string;
     author: string,
     message: string
 }
