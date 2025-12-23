@@ -14,16 +14,32 @@ const App = () => {
 
     const URL = 'http://146.185.154.90:8000/messages';
 
-    console.log(message)
 
     useEffect(() => {
-        const fetchMessage = async () => {
-            const response = await fetch(URL);
-            const userMessage: IMessage[] =await response.json();
+        let lastDateLocal = '';
 
-            setMessage(userMessage);
+        const fetchMessages = async () => {
+            const url = lastDateLocal
+                ? `${URL}?datetime=${lastDateLocal}`
+                : URL;
+
+            const res = await fetch(url);
+            const data: IMessage[] = await res.json();
+
+            if (data.length === 0) return;
+
+            setMessage(prev =>
+                lastDateLocal ? [...prev, ...data] : data
+            );
+
+            lastDateLocal = data[data.length - 1].datetime;
         };
-        fetchMessage().catch(console.error);
+
+        fetchMessages().catch(console.error);
+
+        const interval = setInterval(fetchMessages, 5000);
+
+        return () => clearInterval(interval);
     }, [])
 
   return (

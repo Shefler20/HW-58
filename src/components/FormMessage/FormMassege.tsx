@@ -8,6 +8,7 @@ interface Props {
 
 const FormMessage: React.FC<Props> = ({addMessage}) => {
     const [form, setForm] = useState<MessageMutation>({
+        datetime: '',
         author: '',
         message: ''
     });
@@ -26,6 +27,7 @@ const FormMessage: React.FC<Props> = ({addMessage}) => {
                 _id: String(new Date().toISOString()),
             });
             setForm({
+                datetime: '',
                 author: '',
                 message: ''
             });
