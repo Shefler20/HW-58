@@ -1,10 +1,10 @@
 interface MessageMutation {
-    name: string,
+    author: string,
     message: string
 }
 
 interface IMessage {
-    name: string,
+    author: string,
     message: string
-    id: string
+    _id: string
 }

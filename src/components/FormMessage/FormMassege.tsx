@@ -8,7 +8,7 @@ interface Props {
 
 const FormMessage: React.FC<Props> = ({addMessage}) => {
     const [form, setForm] = useState<MessageMutation>({
-        name: '',
+        author: '',
         message: ''
     });
 
@@ -18,15 +18,15 @@ const FormMessage: React.FC<Props> = ({addMessage}) => {
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (form.name.trim().length === 0 || form.message.trim().length === 0) {
+        if (form.author.trim().length === 0 || form.message.trim().length === 0) {
             toast.error("Please fill all fields");
         } else {
             addMessage({
                 ...form,
-                id: String(new Date().toISOString()),
+                _id: String(new Date().toISOString()),
             });
             setForm({
-                name: '',
+                author: '',
                 message: ''
             });
             toast.success("Message added!");
@@ -42,7 +42,7 @@ const FormMessage: React.FC<Props> = ({addMessage}) => {
                         type="text"
                         name="name"
                         placeholder="Введите имя"
-                        value={form.name}
+                        value={form.author}
                         onChange={onChangeInputAndTextArea}
                     />
                 </div>
