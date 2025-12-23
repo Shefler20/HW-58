@@ -4,50 +4,51 @@ import {useEffect, useState} from "react";
 import './App.css';
 import Message from "./components/Message/Message.tsx";
 
+const URL = 'http://146.185.154.90:8000/messages';
 
 const App = () => {
-    const [message, setMessage] = useState<IMessage[]>([]);
-
-    const addMessage = (message: IMessage) => {
-        setMessage(prevMessage => [message, ...prevMessage]);
-    };
-
-    const URL = 'http://146.185.154.90:8000/messages';
-
+    const [messages, setMessages] = useState<IMessage[]>([]);
+    const [lastMessage, setLastMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        let lastDateLocal = '';
-
-        const fetchMessages = async () => {
-            const url = lastDateLocal
-                ? `${URL}?datetime=${lastDateLocal}`
-                : URL;
-
-            const res = await fetch(url);
+        const fetchAll = async () => {
+            const res = await fetch(URL);
             const data: IMessage[] = await res.json();
 
-            if (data.length === 0) return;
+            const reversed = [...data].reverse();
 
-            setMessage(prev =>
-                lastDateLocal ? [...prev, ...data] : data
-            );
+            setMessages(reversed);
 
-            lastDateLocal = data[data.length - 1].datetime;
+            if (reversed.length > 0) {
+                setLastMessage(reversed[0].datetime);
+            }
         };
 
-        fetchMessages().catch(console.error);
+        fetchAll().catch(console.error);
+    }, []);
 
-        const interval = setInterval(fetchMessages, 5000);
+    useEffect(() => {
+        if (!lastMessage) return;
 
-        return () => clearInterval(interval);
-    }, [])
+        const intervalId = setInterval(async () => {
+            const res = await fetch(`${URL}?datetime=${lastMessage}`);
+            const newData: IMessage[] = await res.json();
 
-  return (
+            if (newData.length === 0) return;
+
+            setMessages(prev => [...newData, ...prev]);
+            setLastMessage(newData[newData.length - 1].datetime);
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [lastMessage]);
+
+    return (
       <>
           <ToastContainer />
-          <FormMessage addMessage={addMessage}/>
+          <FormMessage/>
           <hr/>
-          {message.map((message) => (
+          {messages.map((message) => (
               <Message
                   key={message._id}
                   message={message}

@@ -2,13 +2,8 @@ import {useState} from "react";
 import * as React from "react";
 import {toast} from "react-toastify";
 
-interface Props {
-    addMessage: (message: IMessage) => void;
-}
-
-const FormMessage: React.FC<Props> = ({addMessage}) => {
+const FormMessage = () => {
     const [form, setForm] = useState<MessageMutation>({
-        datetime: '',
         author: '',
         message: ''
     });
@@ -17,21 +12,27 @@ const FormMessage: React.FC<Props> = ({addMessage}) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (form.author.trim().length === 0 || form.message.trim().length === 0) {
-            toast.error("Please fill all fields");
-        } else {
-            addMessage({
-                ...form,
-                _id: String(new Date().toISOString()),
+        try {
+            const url = 'http://146.185.154.90:8000/messages';
+            const data = new URLSearchParams();
+
+            data.set('author', form.author);
+            data.set('message', form.message);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: data,
             });
-            setForm({
-                datetime: '',
-                author: '',
-                message: ''
-            });
-            toast.success("Message added!");
+
+            if (!response.ok) throw new Error('Failed to send message');
+
+            setForm({ author: '', message: '' });
+            toast.success("Message sent!");
+        } catch (err) {
+            toast.error("Error sending message");
+            console.error(err);
         }
     };
 
@@ -42,7 +43,7 @@ const FormMessage: React.FC<Props> = ({addMessage}) => {
                 <div>
                     <input
                         type="text"
-                        name="name"
+                        name="author"
                         placeholder="Введите имя"
                         value={form.author}
                         onChange={onChangeInputAndTextArea}
